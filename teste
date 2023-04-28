@@ -1,0 +1,52 @@
+from flask import Flask, render_template, request
+import smtplib
+from email.mime.text import MIMEText
+
+app = Flask(__name__)
+
+@app.route('/', methods=['GET', 'POST'])
+def index():
+    if request.method == 'POST':
+        # Obter os dados do formulário
+        nome = request.form['nome']
+        rg = request.form['rg']
+        cpf = request.form['cpf']
+        email = request.form['email']
+        telefone = request.form['telefone']
+        banco = request.form['banco']
+        agencia = request.form['agencia']
+        tipo_conta = request.form['tipo_conta']
+        numero_conta = request.form['numero_conta']
+
+        # Construir o corpo do email
+        mensagem = f"""
+        Nome: {nome}
+        RG: {rg}
+        CPF: {cpf}
+        Email: {email}
+        Telefone: {telefone}
+        Banco: {banco}
+        Agência: {agencia}
+        Tipo de Conta: {tipo_conta}
+        Número de Conta: {numero_conta}
+        """
+
+        # Enviar o email
+        msg = MIMEText(mensagem)
+        msg['Subject'] = 'Novo formulário enviado'
+        msg['From'] = 'seu_email@gmail.com'
+        msg['To'] = 'email@email.com'
+        server = smtplib.SMTP('smtp.gmail.com', 587)
+        server.starttls()
+        server.login('seu_email@gmail.com', 'sua_senha')
+        server.sendmail('seu_email@gmail.com', ['email@email.com'], msg.as_string())
+        server.quit()
+
+        # Redirecionar para uma página de confirmação
+        return render_template('confirmacao.html')
+    else:
+        # Renderizar o formulário
+        return render_template('formulario.html')
+
+if __name__ == '__main__':
+    app.run()
